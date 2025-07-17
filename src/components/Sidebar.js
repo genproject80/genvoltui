@@ -29,7 +29,7 @@ function Sidebar() {
             <ListItemText primary="Client Dashboard" />
           </ListItem>
           <ListItem button component={Link} to="settings">
-            <ListItemText primary="Settings" />
+            <ListItemText primary="User Dashboard" />
           </ListItem>
         </List>
       </Drawer>

@@ -1,126 +1,89 @@
-import React, { useState, useRef } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import React, { useState } from 'react';
 import {
-  Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, MenuItem, Box
+  TextField,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Box,
+  Button,
+  Stack
 } from '@mui/material';
 
-const initialClients = [
-  { id: 1, name: 'John Doe', address1: '123 St', address2: 'Block A', address3: '', city: 'NYC', state: 'NY', contactNo: '1234567890' },
+const clients = [
+  { id: 1, name: 'Client A' },
+  { id: 2, name: 'Client B' },
+  { id: 3, name: 'Client C' },
 ];
 
-const clientOptions = ['Client A', 'Client B', 'Client C'];
-
 const Test = () => {
-  const [rowData, setRowData] = useState(initialClients);
-  const [open, setOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    id: '', name: '', address1: '', address2: '', address3: '', city: '', state: '', contactNo: '', client: '',
+    id: '',
+    name: '',
+    address1: '',
+    address2: '',
+    address3: '',
+    city: '',
+    state: '',
+    contactNo: '',
+    client: '',
   });
-  const gridRef = useRef();
 
-  const columnDefs = [
-    { field: 'id' },
-    { field: 'name' },
-    { field: 'address1' },
-    { field: 'address2' },
-    { field: 'address3' },
-    { field: 'city' },
-    { field: 'state' },
-    { field: 'contactNo' },
-    {
-      headerName: 'Actions',
-      cellRenderer: (params) => (
-        <Button variant="outlined" size="small" onClick={() => handleEdit(params.data)}>Edit</Button>
-      )
-    }
-  ];
-
-  const handleEdit = (data) => {
-    setEditMode(true);
-    setFormData({ ...data, client: '' }); // Assume client info is not stored in table
-    setOpen(true);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAddClick = () => {
-    setEditMode(false);
-    setFormData({ id: '', name: '', address1: '', address2: '', address3: '', city: '', state: '', contactNo: '', client: '' });
-    setOpen(true);
-  };
-
-  const handleSave = () => {
-    if (editMode) {
-      setRowData(prev => prev.map(row => (row.id === formData.id ? formData : row)));
-    } else {
-      setRowData(prev => [...prev, { ...formData, id: Date.now() }]);
-    }
-    setOpen(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form Data:', formData);
   };
 
   return (
-    <Box sx={{ height: 500, width: '100%', padding: 2 }}>
-      <Button variant="contained" onClick={handleAddClick} sx={{ mb: 2 }}>
-        Add Client
-      </Button>
-      <div className="ag-theme-alpine" style={{ height: '100%', width: '100%' }}>
-        <AgGridReact
-          ref={gridRef}
-          rowData={rowData}
-          columnDefs={columnDefs}
-          defaultColDef={{ flex: 1, sortable: true, filter: true, editable: false }}
-        />
-      </div>
-
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{editMode ? 'Edit Client' : 'Add Client'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth margin="dense" label="Name"
-            value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <TextField
-            fullWidth margin="dense" label="Address 1"
-            value={formData.address1} onChange={(e) => setFormData({ ...formData, address1: e.target.value })}
-          />
-          <TextField
-            fullWidth margin="dense" label="Address 2"
-            value={formData.address2} onChange={(e) => setFormData({ ...formData, address2: e.target.value })}
-          />
-          <TextField
-            fullWidth margin="dense" label="Address 3"
-            value={formData.address3} onChange={(e) => setFormData({ ...formData, address3: e.target.value })}
-          />
-          <TextField
-            fullWidth margin="dense" label="City"
-            value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-          />
-          <TextField
-            fullWidth margin="dense" label="State"
-            value={formData.state} onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-          />
-          <TextField
-            fullWidth margin="dense" label="Contact No"
-            value={formData.contactNo} onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
-          />
-          {!editMode && (
+    <Box sx={{ p: 4, maxWidth: 500, margin: 'auto' }}>
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={2}>
+          {[
+            'id',
+            'name',
+            'address1',
+            'address2',
+            'address3',
+            'city',
+            'state',
+            'contactNo'
+          ].map((field) => (
             <TextField
-              select fullWidth margin="dense" label="Client"
-              value={formData.client} onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+              key={field}
+              fullWidth
+              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+            />
+          ))}
+
+          <FormControl fullWidth>
+            <InputLabel>Client</InputLabel>
+            <Select
+              name="client"
+              value={formData.client}
+              label="Client"
+              onChange={handleChange}
             >
-              {clientOptions.map((client, index) => (
-                <MenuItem key={index} value={client}>{client}</MenuItem>
+              {clients.map((client) => (
+                <MenuItem key={client.id} value={client.id}>
+                  {client.name}
+                </MenuItem>
               ))}
-            </TextField>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained">Save</Button>
-        </DialogActions>
-      </Dialog>
+            </Select>
+          </FormControl>
+
+          <Button variant="contained" type="submit">
+            Submit
+          </Button>
+        </Stack>
+      </form>
     </Box>
   );
 };
