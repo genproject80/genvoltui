@@ -1,6 +1,6 @@
 import axios from 'axios';
 const api = axios.create({
-    baseURL: 'http://localhost:9191',
+    baseURL: 'https://genvoltbe-azfbf2dsbac9f0fw.centralindia-01.azurewebsites.net',
   });
   
 api.interceptors.request.use(
